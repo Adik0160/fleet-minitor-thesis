@@ -1,15 +1,26 @@
-from typing import Optional
-
+import json
+import asyncio
+import uvicorn
 from fastapi import FastAPI
+from fastapi import Request
+from fastapi import WebSocket
+from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
+with open('measurements.json', 'r') as file:
+    measurements = iter(json.loads(file.read()))
 
 
 @app.get("/")
-def read_root():
-    return {"Hello": "World"}
+def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        await asyncio.sleep(0.5)
+        payload = next(measurements)
+        await websocket.send_json(payload)
