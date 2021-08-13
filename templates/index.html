@@ -30,6 +30,7 @@
              let x = 0;
              ws.onmessage = function(event) {
                  const measurement = JSON.parse(event.data);
+                 console.log(measurement);
                  x += 1
                  dataPoints.push({x, y: measurement.value});
                  chart.update();
