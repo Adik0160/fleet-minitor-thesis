@@ -26,7 +26,7 @@
                  realTime: true,
                  xRange: { min: 0, max: 500 },
              });
-             const ws = new WebSocket("ws://localhost:8000/ws");     
+             const ws = new WebSocket("ws://localhost:8800/ws");     
              let x = 0;
              ws.onmessage = function(event) {
                  const measurement = JSON.parse(event.data);
