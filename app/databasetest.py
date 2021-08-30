@@ -10,14 +10,14 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, backref
 
 Base = declarative_base()
-engine = create_engine('sqlite:///./dat.db', echo=True) #generujemy silnik bazodanowy to połączenia
+engine = create_engine('sqlite:///./db/dat.db', echo=True) #generujemy silnik bazodanowy to połączenia
 #baza danych ma problem z samodzielnym generowaniem - żałosne
 
 class dataFromDevices(Base): #generujemy następny model tabeli
   __tablename__ = 'dataFromDevices'
   
   id = Column(Integer, primary_key=True)
-  #timestamp = Column(DATETIME(fsp=6), default=func.now(), onupdate=func.now())
+  timestamp = Column(DATETIME(fsp=6), default=func.now(), onupdate=func.now())
   deviceNr = Column(Integer)
   fuel = Column(Integer)
   rotationSpeed = Column(Integer)
@@ -36,19 +36,21 @@ class cars(Base):
   __tablename__ = 'cars'
   
   id = Column(Integer, primary_key=True)
+  deviceNr = Column(Integer)
   carName = Column(String)
-  fuel = Column(Integer)
-  rotationSpeed = Column(Integer)
-  speed = Column(Integer)
-  voltage = Column(Float)
+  fuelType = Column(Integer)
+  registrationNr = Column(String)
+  productionYear = Column(Integer)
+  urlLink = Column(String)
   
   #addresses = relationship("Address", order_by="Address.id", backref="user")
-  def __init__(self, deviceNr, fuel, rotationSpeed, speed, voltage):
-      self.deviceNr = deviceNr
-      self.fuel = fuel
-      self.rotationSpeed = rotationSpeed
-      self.speed = speed
-      self.voltage = voltage
+  def __init__(self, deviceNr, carName, fuelType, registrationNr, productionYear, urlLink):
+    self.deviceNr = deviceNr
+    self.carName = carName
+    self.fuelType = fuelType
+    self.registrationNr = registrationNr
+    self.productionYear = productionYear
+    self.urlLink = urlLink
 
 
 Base.metadata.create_all(engine) #generujemy tabele w bazie danych

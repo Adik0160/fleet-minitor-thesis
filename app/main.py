@@ -46,14 +46,17 @@ Session = sessionmaker(bind=databasetest.engine)
 session = Session()
 
 
-def saveToDb(deviceNr, fuel, rotationSpeed, speed, voltage):
+def saveDeviceLogDB(deviceNr, fuel, rotationSpeed, speed, voltage):
     global session
     tr = databasetest.dataFromDevices(deviceNr, fuel, rotationSpeed, speed, voltage)
     session.add(tr)
     session.commit()
 
-
-
+def saveCarsDB(deviceNr, carName, fuelType, registrationNr, productionYear):
+    global session
+    tr = databasetest.cars(deviceNr, carName, fuelType, registrationNr, productionYear)
+    session.add(tr)
+    session.commit()
 
 @mqtt.on_connect()
 def connect(client, flags, rc, properties):
@@ -70,7 +73,7 @@ async def message(client, topic, payload, qos, properties):
     MQTTnewMsg = 1
     MQTTdata = json.loads(payload.decode())
     print(type(MQTTdata))
-    saveToDb(MQTTdata['deviceNr'], MQTTdata['fuel'], MQTTdata['rotationSpeed'], MQTTdata['speed'],MQTTdata['voltage'],)
+    saveDeviceLogDB(MQTTdata['deviceNr'], MQTTdata['fuel'], MQTTdata['rotationSpeed'], MQTTdata['speed'],MQTTdata['voltage'],)
 
 @mqtt.on_disconnect()
 def disconnect(client, packet, exc=None):
@@ -80,14 +83,14 @@ def disconnect(client, packet, exc=None):
 def subscribe(client, mid, qos, properties):
     print("subscribed", client, mid, qos, properties)
 
+@app.get("/car/{deviceNr}")
+async def readDevice(deviceNr: int):
+    global session
+    return session.query(databasetest.cars).filter(databasetest.cars.deviceNr == deviceNr).first()
+
 @app.get("/")
 def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
-
-@app.get("/zmienna")
-async def root():
-    global MQTTdata
-    return {MQTTdata}
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
