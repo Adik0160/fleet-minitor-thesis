@@ -14,12 +14,11 @@ from sqlalchemy.orm import sessionmaker
 #from app.database import SessionLocal, engine
 
 ############mqtt###############
-from fastapi_mqtt import FastMQTT, MQTTConfig
+import app.mqtt_module as mqtt_module
 
 #models.Base.metadata.create_all(bind=engine)
 
-MQTTnewMsg = 0
-MQTTdata = 0
+
 #def saveData():
 #    session = SessionLocal()
 #    tr = models.DevicesData(1, 1234, 50, 800, 75, 14.4)
@@ -29,23 +28,15 @@ MQTTdata = 0
 
 #saveData()
 
-app = FastAPI()
+
+app = FastAPI() #inicjalizacja aplikacji fast api
 templates = Jinja2Templates(directory="templates")
 
-mqtt_config = MQTTConfig(host = "localhost",
-    port= 1883,
-    keepalive = 60
-)
-
-mqtt = FastMQTT(
-    config=mqtt_config
-)
-
-mqtt.init_app(app)
-Session = sessionmaker(bind=databasetest.engine)
-session = Session()
+mqtt_module.mqtt.init_app(app) #inicjalizacja modułu mqtt
 
 
+
+'''
 def saveDeviceLogDB(deviceNr, fuel, rotationSpeed, speed, voltage):
     global session
     tr = databasetest.dataFromDevices(deviceNr, fuel, rotationSpeed, speed, voltage)
@@ -57,38 +48,21 @@ def saveCarsDB(deviceNr, carName, fuelType, registrationNr, productionYear):
     tr = databasetest.cars(deviceNr, carName, fuelType, registrationNr, productionYear)
     session.add(tr)
     session.commit()
-
-@mqtt.on_connect()
-def connect(client, flags, rc, properties):
-    mqtt.client.subscribe("data") #subscribing mqtt topic
-    print("Connected: ", client, flags, rc, properties)
-    
-
-@mqtt.on_message()
-async def message(client, topic, payload, qos, properties):
-    print("Received message: ",topic, payload.decode(), qos, properties)
-    #saveToDb()
-    global MQTTdata
-    global MQTTnewMsg
-    MQTTnewMsg = 1
-    MQTTdata = json.loads(payload.decode())
-    print(type(MQTTdata))
-    saveDeviceLogDB(MQTTdata['deviceNr'], MQTTdata['fuel'], MQTTdata['rotationSpeed'], MQTTdata['speed'],MQTTdata['voltage'],)
-
-@mqtt.on_disconnect()
-def disconnect(client, packet, exc=None):
-    print("Disconnected")
-
-@mqtt.on_subscribe()
-def subscribe(client, mid, qos, properties):
-    print("subscribed", client, mid, qos, properties)
+'''
 
 @app.get("/car/{deviceNr}")
-async def readDevice(deviceNr: int):
-    global session
-    return session.query(databasetest.cars).filter(databasetest.cars.deviceNr == deviceNr).first()
+def readDevice(deviceNr: int):
+    #global session
+    dbsession = databasetest.dbsession()
+    data = dbsession.query(databasetest.cars).filter(databasetest.cars.deviceNr == deviceNr).first()
+    dbsession.close()
+    return data
 
-@app.get("/")
+@app.get("/") ##### strona główna
+def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/chart") ##### strona główna
 def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
@@ -96,12 +70,10 @@ def read_root(request: Request):
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     while True:
-        global MQTTdata
-        global MQTTnewMsg
-        await asyncio.sleep(0.5)
-        if(MQTTnewMsg == 1):
-            MQTTnewMsg = 0
-            await websocket.send_json({"value" : MQTTdata['rotationSpeed']})
+        await asyncio.sleep(0.1)
+        if(mqtt_module.MQTTnewMsg == 1):
+            mqtt_module.MQTTnewMsg = 0
+            await websocket.send_json({"value" : mqtt_module.MQTTdata['rotationSpeed']})
 
 
 ####################################sql

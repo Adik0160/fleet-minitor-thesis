@@ -54,6 +54,7 @@ class cars(Base):
 
 
 Base.metadata.create_all(engine) #generujemy tabele w bazie danych
+dbsession = sessionmaker(bind=engine)
 
 '''
 class cars(Base): #generujemy model tabeli
