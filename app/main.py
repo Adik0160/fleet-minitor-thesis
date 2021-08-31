@@ -59,21 +59,27 @@ def readDevice(deviceNr: int):
     return data
 
 @app.get("/") ##### strona główna
-def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+def home_page(request: Request):
+    return templates.TemplateResponse("chart.html", {"request": request})
 
-@app.get("/chart") ##### strona główna
-def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+@app.get("/chart") ##### strona wykresów ##### domyślny pierwszy samochód lub po idiku w parametrach
+def chart_page(request: Request, deviceID: int = None):
+    #trzeba ściagnać dane samochodu z bazy danych i wyświetlić
+    dbsession = databasetest.dbsession()
+    data = dbsession.query(databasetest.cars).filter(databasetest.cars.deviceNr == deviceID).first()
+    print(type(data))
+    dbsession.close()
+    return templates.TemplateResponse("chart.html", {"request": request, "deviceID": deviceID})
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+@app.websocket("/{deviceID}/ws")
+async def websocket_endpoint(websocket: WebSocket, deviceID):
     await websocket.accept()
     while True:
         await asyncio.sleep(0.1)
         if(mqtt_module.MQTTnewMsg == 1):
             mqtt_module.MQTTnewMsg = 0
-            await websocket.send_json({"value" : mqtt_module.MQTTdata['rotationSpeed']})
+            if(str(mqtt_module.MQTTdata['deviceNr']) == deviceID):
+                await websocket.send_json({"value" : mqtt_module.MQTTdata['rotationSpeed']})
 
 
 ####################################sql
