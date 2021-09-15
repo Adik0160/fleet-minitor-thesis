@@ -37,7 +37,7 @@ async def message(client, topic, payload, qos, properties):
 
     #zapisz do bazy danych - asynchronicznie czy cos???
     #saveDeviceLogDB(MQTTdata['deviceNr'], MQTTdata['fuel'], MQTTdata['rotationSpeed'], MQTTdata['speed'],MQTTdata['voltage'],)
-
+    #test githubowego klucza
 @mqtt.on_disconnect()
 def disconnect(client, packet, exc=None):
     print("Disconnected")
