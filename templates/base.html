@@ -10,23 +10,25 @@
     </head>
 
     <body>
-        <div class="ui secondary  menu">
-            <a class="active item">
+        <div class="ui stackable  menu">
+            <div class="item">
+               <img src="{{ url_for('static', path='/logo2.png') }}">
+            </div>
+            <a class="{%block activehome%}{% endblock %}item" href="/">
                 Strona główna
             </a>
-            <a class="item">
+            <a class="{%block activerealtime%}{% endblock %}item" href="/chart">
                 Dane w czasie rzeczywistym
             </a>
-            <a class="item">
+            <a class="{%block activedata%}{% endblock %}item">
                 Przegląd danych
             </a>
-            <a class="item">
+            <a class="{%block activestatistics%}{% endblock %}item">
                 Statystyki
             </a>
-            <a class="item">
+            <a class="{%block activelist%}{% endblock %}item">
                 Lista pojazdów
             </a> <!-- w każdej kategori będzie samochód do wybrania (oprócz w liście pojazdów, to będzie do modyfikacji aktualnych rzeczy)-->
-            </div>
           </div>
             {% block content %}
             {% endblock %}

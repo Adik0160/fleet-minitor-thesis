@@ -7,6 +7,7 @@ import app.databasetest as databasetest
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi import WebSocket
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 ##############sql#################
 
@@ -30,6 +31,7 @@ import app.mqtt_module as mqtt_module
 
 
 app = FastAPI() #inicjalizacja aplikacji fast api
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 mqtt_module.mqtt.init_app(app) #inicjalizacja modułu mqtt
