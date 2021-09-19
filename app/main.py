@@ -60,7 +60,7 @@ def readDevice(deviceNr: int):
 
 @app.get("/") ##### strona główna
 def home_page(request: Request):
-    return templates.TemplateResponse("chart.html", {"request": request})
+    return templates.TemplateResponse("home.html", {"request": request})
 
 @app.get("/chart") ##### strona wykresów ##### domyślny pierwszy samochód lub po idiku w parametrach
 def chart_page(request: Request, deviceID: int = None):
