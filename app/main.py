@@ -64,14 +64,14 @@ def readDevice(deviceNr: int):
 def home_page(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
 
-@app.get("/chart") ##### strona wykresów ##### domyślny pierwszy samochód lub po idiku w parametrach
+@app.get("/realtime-data") ##### strona wykresów ##### domyślny pierwszy samochód lub po idiku w parametrach
 def chart_page(request: Request, deviceID: int = None):
     #trzeba ściagnać dane samochodu z bazy danych i wyświetlić
     dbsession = databasetest.dbsession()
     data = dbsession.query(databasetest.cars).filter(databasetest.cars.deviceNr == deviceID).first()
     print(type(data))
     dbsession.close()
-    return templates.TemplateResponse("chart.html", {"request": request, "deviceID": deviceID})
+    return templates.TemplateResponse("realtime.html", {"request": request, "deviceID": deviceID})
 
 @app.websocket("/{deviceID}/ws")
 async def websocket_endpoint(websocket: WebSocket, deviceID):
