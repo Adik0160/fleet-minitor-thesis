@@ -1,28 +1,49 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy.ext.declarative import declarative_base
+#from app.database import Base
 #from sqlalchemy.orm import relationship
 
 from app.database import Base
 
 
-class DevicesData(Base):
-    __tablename__ = "devicesData"
+class Pojazdy(Base):
+  __tablename__= 'POJAZDY'
 
-    id = Column(Integer, primary_key=True, index=True)
-    deviceNr = Column(Integer)
-    fuel = Column(Integer)
-    rotationSpeed = Column(Integer)
-    speed = Column(Integer)
-    voltage = Column(Float)
+  id = Column(Integer, primary_key=True)
+  markaID = Column(Integer, ForeignKey('MARKI.id'))
+  nazwa = Column(String)
+  rokProdukcji = Column(Integer)
+  numerRejestracyjny = Column(String)
+  predkoscMax = Column(Integer)
+  #zdjLink = Column(String)
 
-class Cars(Base):
-    __tablename__ = "cars"
+  marki = relationship("Marki", back_populates='pojazdy')
+  przypisanie = relationship("Przypisanie", back_populates='pojazdy')
 
-    id = Column(Integer, primary_key=True, index=True)
-    deviceNr = Column(Integer)
-    carName = Column(String)
-    carProductionDate = Column(Integer)
-    registrationName = Column(String)
+class Marki(Base):
+  __tablename__= 'MARKI'
 
-    ##id##deviceNumber(foreginkey)##Nazwa samochodu##rocznik##Rejestracja##
-tr = DevicesData(1, 1, 1, 1, 1, 1)
-print(tr)
+  id = Column(Integer, primary_key=True)
+  nazwaMarki = Column(String)
+  panstwo = Column(String)
+
+  pojazdy = relationship("Pojazdy", back_populates='marki')
+
+class Urzadzenia(Base):
+  __tablename__= 'URZADZENIA'
+
+  id = Column(Integer, primary_key=True)
+  nrUrzadzenia = Column(String)
+
+  przypisanie = relationship("Przypisanie", back_populates='urzadzenia')
+
+class Przypisanie(Base):
+  __tablename__= 'PRZYPISANIE'
+
+  id = Column(Integer, primary_key=True)
+  pojazdID = Column(Integer, ForeignKey('POJAZDY.id'))
+  urzadzenieID = Column(Integer, ForeignKey('URZADZENIA.id'))
+
+  pojazdy = relationship("Pojazdy", back_populates='przypisanie')
+  urzadzenia = relationship("Urzadzenia", back_populates='przypisanie')

@@ -2,11 +2,15 @@
 ###############fastapi#############
 import json
 import asyncio
+from sqlalchemy.sql.expression import null
 import uvicorn
-import app.databasetest as databasetest
+#import app.databasetest as databasetest
+from app.database import SessionLocal, engine
+import app.models as models
 from fastapi import FastAPI
-from fastapi import Request
+from fastapi import Request, Depends
 from fastapi import WebSocket
+from sqlalchemy.orm import Session
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 ##############sql#################
@@ -33,10 +37,9 @@ import app.mqtt_module as mqtt_module
 app = FastAPI() #inicjalizacja aplikacji fast api
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+models.Base.metadata.create_all(engine)
 
 mqtt_module.mqtt.init_app(app) #inicjalizacja modułu mqtt
-
-
 
 '''
 def saveDeviceLogDB(deviceNr, fuel, rotationSpeed, speed, voltage):
@@ -51,27 +54,28 @@ def saveCarsDB(deviceNr, carName, fuelType, registrationNr, productionYear):
     session.add(tr)
     session.commit()
 '''
+def get_db():
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
 
-@app.get("/car/{deviceNr}")
-def readDevice(deviceNr: int):
-    #global session
-    dbsession = databasetest.dbsession()
-    data = dbsession.query(databasetest.cars).filter(databasetest.cars.deviceNr == deviceNr).first()
-    dbsession.close()
-    return data
+@app.get("/car")
+def readDevice(carNr: int = None, db: Session = Depends(get_db)):
+    if carNr == None:
+        samochody = db.query(models.Pojazdy).all()
+    return samochody
 
 @app.get("/") ##### strona główna
 def home_page(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
 
 @app.get("/realtime-data") ##### strona wykresów ##### domyślny pierwszy samochód lub po idiku w parametrach
-def chart_page(request: Request, deviceID: int = None):
-    #trzeba ściagnać dane samochodu z bazy danych i wyświetlić
-    dbsession = databasetest.dbsession()
-    data = dbsession.query(databasetest.cars).filter(databasetest.cars.deviceNr == deviceID).first()
-    print(type(data))
-    dbsession.close()
-    return templates.TemplateResponse("realtime.html", {"request": request, "deviceID": deviceID})
+def chart_page(request: Request, pojazdID: int = None, db: Session = Depends(get_db)):
+    allCars = db.query(models.Pojazdy).all()
+    actualCar = db.query(models.Pojazdy).filter(models.Pojazdy.id == pojazdID).first()
+    return templates.TemplateResponse("realtime.html", {"request": request, "pojazdID": pojazdID, "allCars": allCars, "actualCar": actualCar})
 
 @app.websocket("/{deviceID}/ws")
 async def websocket_endpoint(websocket: WebSocket, deviceID):

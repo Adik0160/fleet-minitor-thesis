@@ -19,11 +19,47 @@ Wykresy w czasie rzeczywistym
 <script src="https://huww98.github.io/TimeChart/dist/timechart.min.js"></script>
 
  <style>
-     #chart { width: 100%; height: 300px; margin-top: 300px; }
+     #chart { width: 100%; height: 300px;  }
  </style>
 {% endblock %}
 {% block content %}
-<div id="chart"></div>
+
+<div class="ui container stackable grid">
+    <div class="three wide column">
+        <div class="ui vertical basic buttons">
+            {% for allCars in allCars %}
+            <a class="ui button" href="?pojazdID={{ allCars.id }}">{{ allCars.marki.nazwaMarki }} {{ allCars.nazwa }}</a>
+            {% endfor %}
+        </div>
+    </div>
+    {% if actualCar %}
+    <div class="thirteen wide column ui items">
+        <div class="item">
+          <div class="image">
+            <img src="https://via.placeholder.com/350">
+          </div>
+          <div class="content">
+            <h1 class="header">{{ actualCar.marki.nazwaMarki }} {{ actualCar.nazwa }} ({{ actualCar.rokProdukcji }})</h1>
+            <div class="meta">
+              <span>{{ actualCar.numerRejestracyjny }}</span>
+            </div>
+            <div class="description">
+              <p>ilość paliwa: 50 %</p>
+              <p>prędkość obrotowa: 800 obr/min</p>
+              <p>prędkość pojazdu: 70 km/h</p>
+              <p>napięcie akumulatora: 12 V</p>
+            </div>
+          </div>
+        </div>
+    </div>
+    {% else %}
+    <h1 class="ui header">Wybierz samochód</h1>
+    {% endif %}
+</div>
+{% if actualCar %}
+    <div id="chart"></div>
+{% endif %}
+
          <script>
              const el = document.getElementById('chart');
              const dataPoints = [];
@@ -32,7 +68,7 @@ Wykresy w czasie rzeczywistym
                  realTime: true,
                  xRange: { min: 0, max: 500 },
              });
-             const ws = new WebSocket("ws://localhost:8800/{{ deviceID }}/ws");     
+             const ws = new WebSocket("ws://localhost:8800/{{ pojazdID }}/ws");     
              let x = 0;
              ws.onmessage = function(event) {
                  const measurement = JSON.parse(event.data);
