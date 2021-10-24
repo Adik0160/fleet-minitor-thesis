@@ -36,7 +36,7 @@ Wykresy w czasie rzeczywistym
     <div class="thirteen wide column ui items">
         <div class="item">
           <div class="image">
-            <img src="https://via.placeholder.com/350">
+            <img src="{{ actualCar.zdjLink }}">
           </div>
           <div class="content">
             <h1 class="header">{{ actualCar.marki.nazwaMarki }} {{ actualCar.nazwa }} ({{ actualCar.rokProdukcji }})</h1>
@@ -57,14 +57,21 @@ Wykresy w czasie rzeczywistym
     {% endif %}
 </div>
 {% if actualCar %}
+    <h1 class="ui header">Wykres</h1>
     <div id="chart"></div>
 {% endif %}
 
          <script>
              const el = document.getElementById('chart');
-             const dataPoints = [];
+             const fuel = [];
+             const rotation = [];
+             const speed = [];
+             const voltage = [];
              const chart = new TimeChart(el, {
-                 series: [{ data: dataPoints, name: 'Real-time measurement streaming', color: 'darkblue' }],
+                 series: [{ data: fuel, name: 'Paliwo', color: 'darkblue' },
+                          { data: rotation, name: 'Prędkość obrotowa', color: 'green' },
+                          { data: speed, name: 'Prędkość pojazdu', color: 'red' },
+                          { data: voltage, name: 'Napięcie akumulatora', color: 'violet' }],
                  realTime: true,
                  xRange: { min: 0, max: 500 },
              });

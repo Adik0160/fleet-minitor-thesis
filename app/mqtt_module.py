@@ -1,6 +1,9 @@
 import json
 from fastapi_mqtt import FastMQTT, MQTTConfig
-import app.databasetest as databasetest
+from app.database import SessionLocal, engine
+from sqlalchemy import select
+import app.models as models
+#import app.databasetest as databasetest
 
 mqtt_config = MQTTConfig(host = "localhost",
     port= 1883,
@@ -14,6 +17,14 @@ mqtt = FastMQTT(
 MQTTnewMsg = 0
 MQTTdata = 0
 
+def get_db():
+#    try:
+        db = SessionLocal()
+        yield db
+ #   finally:
+ #       db.close()
+
+
 @mqtt.on_connect()
 def connect(client, flags, rc, properties):
     mqtt.client.subscribe("data") #subscribing mqtt topic
@@ -24,16 +35,21 @@ def connect(client, flags, rc, properties):
 async def message(client, topic, payload, qos, properties):
     print("Received message: ",topic, payload.decode(), qos, properties)
     #saveToDb()
-    global MQTTdata
-    global MQTTnewMsg
-    MQTTnewMsg = 1
+    db = SessionLocal()
+#   samochod = db.query(models.Pojazdy).filter(models.Pojazdy.urzadzenieID == '1234')
+    pojazd = db.query(models.Pojazdy).filter(models.Pojazdy.urzadzenia.nrUrzadzenia == '1234').first()
+
+    print(str(pojazd.urzadzenia))
+    #global MQTTdata
+    #global MQTTnewMsg
+    #MQTTnewMsg = 1
     MQTTdata = json.loads(payload.decode())
-    print(type(MQTTdata))
-    dbsession = databasetest.dbsession()
-    tr = databasetest.dataFromDevices(MQTTdata['deviceNr'], MQTTdata['fuel'], MQTTdata['rotationSpeed'], MQTTdata['speed'], MQTTdata['voltage'])
-    dbsession.add(tr)
-    dbsession.commit()
-    dbsession.close()
+    #print(type(MQTTdata))
+    #dbsession = databasetest.dbsession()
+    #tr = models.DaneZPojazdu(MQTTdata['deviceNr'], MQTTdata['fuel'], MQTTdata['rotationSpeed'], MQTTdata['speed'], MQTTdata['voltage'])
+    #db.add(tr)
+    #db.commit()
+    db.close()
 
     #zapisz do bazy danych - asynchronicznie czy cos???
     #saveDeviceLogDB(MQTTdata['deviceNr'], MQTTdata['fuel'], MQTTdata['rotationSpeed'], MQTTdata['speed'],MQTTdata['voltage'],)
