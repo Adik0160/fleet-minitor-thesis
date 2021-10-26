@@ -17,12 +17,6 @@ mqtt = FastMQTT(
 MQTTnewMsg = 0
 MQTTdata = 0
 
-def get_db():
-#    try:
-        db = SessionLocal()
-        yield db
- #   finally:
- #       db.close()
 
 
 @mqtt.on_connect()
@@ -35,15 +29,30 @@ def connect(client, flags, rc, properties):
 async def message(client, topic, payload, qos, properties):
     print("Received message: ",topic, payload.decode(), qos, properties)
     #saveToDb()
+    MQTTdata = json.loads(payload.decode())
     db = SessionLocal()
-#   samochod = db.query(models.Pojazdy).filter(models.Pojazdy.urzadzenieID == '1234')
-    pojazd = db.query(models.Pojazdy).filter(models.Pojazdy.urzadzenia.nrUrzadzenia == '1234').first()
+    urzadzenie = db.query(models.Urzadzenia).filter(models.Urzadzenia.nrUrzadzenia == MQTTdata['deviceNr']).first()
+    if urzadzenie:
+        print(MQTTdata['deviceNr'], " jest w bazie--------------------------------------------")
+        tr = models.DaneZPojazdu(urzadzenie.id, MQTTdata['fuel'], MQTTdata['rotationSpeed'], MQTTdata['speed'], MQTTdata['voltage'])
+        if urzadzenie.pojazdy:
+            idPojazdu = urzadzenie.pojazdy[0].id
+            tr.pojazdID = idPojazdu
+        db.add(tr)
+        db.commit()
+        #pojazd = db.query(models.Pojazdy).join(models.Urzadzenia).filter(models.Urzadzenia.nrUrzadzenia == '1234').first()
+    else:
+        print(MQTTdata['deviceNr'], " NIE MA W BAZIE--------------------------------------------")
+    #tr = models.DaneZPojazdu()
 
-    print(str(pojazd.urzadzenia))
+#   samochod = db.query(models.Pojazdy).filter(models.Pojazdy.urzadzenieID == '1234')
+    #pojazd = db.query(models.Pojazdy).join(models.Urzadzenia).filter(models.Urzadzenia.nrUrzadzenia == '1234').all() #przykład kiedy chcemy wyciągnać id pojazdu z nr urządzenia
+
+    #print(str(pojazd.urzadzenia))
     #global MQTTdata
     #global MQTTnewMsg
     #MQTTnewMsg = 1
-    MQTTdata = json.loads(payload.decode())
+    
     #print(type(MQTTdata))
     #dbsession = databasetest.dbsession()
     #tr = models.DaneZPojazdu(MQTTdata['deviceNr'], MQTTdata['fuel'], MQTTdata['rotationSpeed'], MQTTdata['speed'], MQTTdata['voltage'])

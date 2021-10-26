@@ -72,9 +72,10 @@ def home_page(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
 
 @app.get("/realtime-data") ##### strona wykresów ##### domyślny pierwszy samochód lub po idiku w parametrach
-def chart_page(request: Request, pojazdID: int = None, db: Session = Depends(get_db)):
+async def chart_page(request: Request, pojazdID: int = None, db: Session = Depends(get_db)):
     allCars = db.query(models.Pojazdy).all()
     actualCar = db.query(models.Pojazdy).filter(models.Pojazdy.id == pojazdID).first()
+    db.commit()
     return templates.TemplateResponse("realtime.html", {"request": request, "pojazdID": pojazdID, "allCars": allCars, "actualCar": actualCar})
 
 @app.websocket("/{deviceID}/ws")

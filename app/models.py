@@ -57,8 +57,8 @@ class DaneZPojazdu(Base):
     pojazdy = relationship("Pojazdy", back_populates='daneZPojazdu')
     urzadzenia = relationship("Urzadzenia", back_populates='daneZPojazdu')
 
-    def __init__(self, pojazdID, urzadzenieID, iloscPaliwa, predkoscObrotowa, predkoscPojazdu, napiecieAkumulatora):
-        self.pojazdID = pojazdID
+    def __init__(self, urzadzenieID, iloscPaliwa, predkoscObrotowa, predkoscPojazdu, napiecieAkumulatora):
+        #self.pojazdID = pojazdID
         self.urzadzenieID = urzadzenieID
         self.iloscPaliwa = iloscPaliwa
         self.predkoscObrotowa = predkoscObrotowa

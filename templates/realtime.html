@@ -56,11 +56,10 @@ Wykresy w czasie rzeczywistym
     <h1 class="ui header">Wybierz samochód</h1>
     {% endif %}
 </div>
-{% if actualCar %}
+{% if actualCar.urzadzenia %}
+{% if actualCar and actualCar.urzadzenia %}
     <h1 class="ui header">Wykres</h1>
     <div id="chart"></div>
-{% endif %}
-
          <script>
              const el = document.getElementById('chart');
              const fuel = [];
@@ -75,7 +74,7 @@ Wykresy w czasie rzeczywistym
                  realTime: true,
                  xRange: { min: 0, max: 500 },
              });
-             const ws = new WebSocket("ws://localhost:8800/{{ pojazdID }}/ws");     
+             const ws = new WebSocket("ws://localhost:8800/{{ actualCar.urzadzenia.nrUrzadzenia }}/ws");     
              let x = 0;
              ws.onmessage = function(event) {
                  const measurement = JSON.parse(event.data);
@@ -85,4 +84,9 @@ Wykresy w czasie rzeczywistym
                  chart.update();
              };
          </script>
+
+{% endif %}
+{% else %}
+<h1 class="ui header">Brak powiązanego urządzenia</h1>
+{% endif %}
 {% endblock %}
