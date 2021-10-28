@@ -1,0 +1,1 @@
+ogarnać jak będą trzymane dane w bazie - czy numer urządzenia w str czy w incie oraz które atrybuty są must have
