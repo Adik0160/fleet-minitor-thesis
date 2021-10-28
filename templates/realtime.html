@@ -44,10 +44,10 @@ Wykresy w czasie rzeczywistym
               <span>{{ actualCar.numerRejestracyjny }}</span>
             </div>
             <div class="description">
-              <p>ilość paliwa: 50 %</p>
-              <p>prędkość obrotowa: 800 obr/min</p>
-              <p>prędkość pojazdu: 70 km/h</p>
-              <p>napięcie akumulatora: 12 V</p>
+              <p>ilość paliwa: <strong id="fuel"></strong> %</p>
+              <p>prędkość obrotowa: <strong id="rotation"></strong> obr/min</p>
+              <p>prędkość pojazdu: <strong id="speed"></strong> km/h</p>
+              <p>napięcie akumulatora: <strong id="voltage"></strong> V</p>
             </div>
           </div>
         </div>
@@ -80,11 +80,19 @@ Wykresy w czasie rzeczywistym
                  const measurement = JSON.parse(event.data);
                  console.log(measurement);
                  x += 1
-                 fuel.push({x, y: measurement.fuel});
-                 rotation.push({x, y: measurement.rotation});
-                 speed.push({x, y: measurement.speed});
-                 voltage.push({x, y: measurement.voltage});
+                 var wsFuel = measurement.fuel
+                 var wsRotation = measurement.rotation
+                 var wsSpeed = measurement.speed
+                 var wsVoltagel = measurement.voltage
+                 fuel.push({x, y: wsFuel});
+                 rotation.push({x, y: wsRotation});
+                 speed.push({x, y: wsSpeed});
+                 voltage.push({x, y: wsVoltagel});
                  chart.update();
+                 document.getElementById("fuel").innerHTML = wsFuel;
+                 document.getElementById("rotation").innerHTML = wsRotation;
+                 document.getElementById("speed").innerHTML = wsSpeed;
+                 document.getElementById("voltage").innerHTML = wsVoltagel;
              };
          </script>
 
