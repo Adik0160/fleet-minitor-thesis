@@ -7,9 +7,10 @@ import uvicorn
 #import app.databasetest as databasetest
 from app.database import SessionLocal, engine
 import app.models as models
+from typing import List
 from fastapi import FastAPI
 from fastapi import Request, Depends
-from fastapi import WebSocket
+from fastapi import WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -33,8 +34,31 @@ import app.mqtt_module as mqtt_module
 
 #saveData()
 
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections = []
+
+    async def connect(self, websocket: WebSocket, deviceNr: str):
+        await websocket.accept()
+        self.active_connections.append({'wsHandler': websocket, 'deviceNr': deviceNr})
+
+    def disconnect(self, websocket: WebSocket):
+        for i in range(len(self.active_connections)):
+            if self.active_connections[i]['wsHandler'] == websocket:
+                del self.active_connections[i]
+                break
+        #self.active_connections.remove(websocket)
+
+    #async def send_personal_message(self, message: str, websocket: WebSocket):
+    #    await websocket.send_text(message)
+
+    async def broadcastDataToDeviceId(self, message: str, deviceNr: str):
+        for connection in self.active_connections:
+            if connection['deviceNr'] == deviceNr:
+                await connection['wsHandler'].send_text(message)
 
 app = FastAPI() #inicjalizacja aplikacji fast api
+manager = ConnectionManager()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 models.Base.metadata.create_all(engine)
@@ -61,6 +85,11 @@ def get_db():
     finally:
         db.close()
 
+@app.get("/test")
+async def readDevice(request: Request, deviceNr: str = None):
+    await manager.broadcastDataToDeviceId(deviceNr, deviceNr)
+    return 'OK'
+
 @app.get("/car")
 def readDevice(carNr: int = None, db: Session = Depends(get_db)):
     if carNr == None:
@@ -78,6 +107,19 @@ async def chart_page(request: Request, pojazdID: int = None, db: Session = Depen
     db.commit()
     return templates.TemplateResponse("realtime.html", {"request": request, "pojazdID": pojazdID, "allCars": allCars, "actualCar": actualCar})
 
+@app.websocket("/ws/{deviceNr}")
+async def websocket_endpoint(websocket: WebSocket, deviceNr: str):
+    await manager.connect(websocket, deviceNr)
+    try:
+        while True:
+            await websocket.receive_text()
+            #await manager.send_personal_message(f"You wrote: {data}", websocket)
+            #await manager.broadcast(f"Client #{client_id} says: {data}")
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+ #       await manager.broadcast(f"Client #{client_id} left the chat")
+
+'''
 @app.websocket("/{deviceID}/ws")
 async def websocket_endpoint(websocket: WebSocket, deviceID):
     await websocket.accept()
@@ -88,6 +130,6 @@ async def websocket_endpoint(websocket: WebSocket, deviceID):
             if(str(mqtt_module.MQTTdata['deviceNr']) == deviceID):
                 await websocket.send_json({"value" : mqtt_module.MQTTdata['rotationSpeed']})
 
-
+'''
 ####################################sql
 

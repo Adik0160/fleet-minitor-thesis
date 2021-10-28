@@ -3,6 +3,7 @@ from fastapi_mqtt import FastMQTT, MQTTConfig
 from app.database import SessionLocal, engine
 from sqlalchemy import select
 import app.models as models
+#from app.main import manager
 #import app.databasetest as databasetest
 
 mqtt_config = MQTTConfig(host = "localhost",
@@ -35,6 +36,7 @@ async def message(client, topic, payload, qos, properties):
     if urzadzenie:
         print(MQTTdata['deviceNr'], " jest w bazie--------------------------------------------")
         tr = models.DaneZPojazdu(urzadzenie.id, MQTTdata['fuel'], MQTTdata['rotationSpeed'], MQTTdata['speed'], MQTTdata['voltage'])
+        #manager.broadcastDataToDeviceId(tr, MQTTdata['deviceNr'])
         if urzadzenie.pojazdy:
             idPojazdu = urzadzenie.pojazdy[0].id
             tr.pojazdID = idPojazdu
