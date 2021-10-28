@@ -37,7 +37,7 @@ def publish(client):
     global speed
     while True:
         time.sleep(1)
-        msg = json.dumps({"deviceNr": deviceNr, "fuel": 50, "rotationSpeed": random.randrange(1200, 1500, 1), "speed": random.randrange(speed, speed+35, 1), "voltage": 14.4})
+        msg = json.dumps({"deviceNr": deviceNr, "fuel": 50, "rotation": random.randrange(1200, 1500, 1), "speed": random.randrange(speed, speed+35, 1), "voltage": 14.4})
         result = client.publish(topic, msg)
         # result: [0, 1]
         status = result[0]

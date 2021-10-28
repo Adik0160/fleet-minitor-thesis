@@ -72,15 +72,18 @@ Wykresy w czasie rzeczywistym
                           { data: speed, name: 'Prędkość pojazdu', color: 'red' },
                           { data: voltage, name: 'Napięcie akumulatora', color: 'violet' }],
                  realTime: true,
-                 xRange: { min: 0, max: 500 },
+                 xRange: { min: 0, max: 500 }
              });
-             const ws = new WebSocket("ws://localhost:8800/{{ actualCar.urzadzenia.nrUrzadzenia }}/ws");     
+             const ws = new WebSocket("ws://localhost:8800/ws/{{ actualCar.urzadzenia.nrUrzadzenia }}");     
              let x = 0;
              ws.onmessage = function(event) {
                  const measurement = JSON.parse(event.data);
                  console.log(measurement);
                  x += 1
-                 dataPoints.push({x, y: measurement.value});
+                 fuel.push({x, y: measurement.fuel});
+                 rotation.push({x, y: measurement.rotation});
+                 speed.push({x, y: measurement.speed});
+                 voltage.push({x, y: measurement.voltage});
                  chart.update();
              };
          </script>

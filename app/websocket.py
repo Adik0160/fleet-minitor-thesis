@@ -1,4 +1,5 @@
 from fastapi import WebSocket, WebSocketDisconnect
+from typing import Any
 
 class ConnectionManager:
     def __init__(self):
@@ -14,9 +15,9 @@ class ConnectionManager:
                 del self.active_connections[i]
                 break
 
-    async def broadcastDataToDeviceId(self, message: str, deviceNr: int):
+    async def broadcastDataToDeviceId(self, message: Any, deviceNr: int):
         for connection in self.active_connections:
             if connection['deviceNr'] == deviceNr:
-                await connection['wsHandler'].send_text(message)
+                await connection['wsHandler'].send_json(message)
 
 wsManager = ConnectionManager()

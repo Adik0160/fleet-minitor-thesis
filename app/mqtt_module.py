@@ -34,8 +34,8 @@ async def message(client, topic, payload, qos, properties):
     urzadzenie = db.query(models.Urzadzenia).filter(models.Urzadzenia.nrUrzadzenia == MQTTdata['deviceNr']).first()
     if urzadzenie:
         print(MQTTdata['deviceNr'], " jest w bazie--------------------------------------------")
-        tr = models.DaneZPojazdu(urzadzenie.id, MQTTdata['fuel'], MQTTdata['rotationSpeed'], MQTTdata['speed'], MQTTdata['voltage'])
-        await wsManager.broadcastDataToDeviceId(str(MQTTdata['rotationSpeed']), MQTTdata['deviceNr'])
+        tr = models.DaneZPojazdu(urzadzenie.id, MQTTdata['fuel'], MQTTdata['rotation'], MQTTdata['speed'], MQTTdata['voltage'])
+        await wsManager.broadcastDataToDeviceId({"fuel": MQTTdata['fuel'], "rotation": MQTTdata['rotation'], "speed": MQTTdata['speed'], "voltage": MQTTdata['voltage']}, MQTTdata['deviceNr'])
         #manager.broadcastDataToDeviceId(tr, MQTTdata['deviceNr'])
         if urzadzenie.pojazdy:
             idPojazdu = urzadzenie.pojazdy[0].id
