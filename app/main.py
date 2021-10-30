@@ -3,6 +3,7 @@
 import json
 import asyncio
 from sqlalchemy.sql.expression import null
+from sqlalchemy.sql.sqltypes import Date
 import uvicorn
 #import app.databasetest as databasetest
 from app.database import SessionLocal, engine
@@ -76,6 +77,13 @@ def readDevice(carNr: int = None, db: Session = Depends(get_db)):
 @app.get("/") ##### strona główna
 def home_page(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
+
+@app.get("/data-viewer") ##### strona wykresów ##### domyślny pierwszy samochód lub po idiku w parametrach
+async def data_viewer(request: Request, pojazdID: int = None, dateBegin: Date, dateEnd: Date, db: Session = Depends(get_db)):
+    allCars = db.query(models.Pojazdy).all()
+    actualCar = db.query(models.Pojazdy).filter(models.Pojazdy.id == pojazdID).first()
+    db.commit()
+    return templates.TemplateResponse("dataviewer.html", {"request": request, "pojazdID": pojazdID, "allCars": allCars, "actualCar": actualCar})
 
 @app.get("/realtime-data") ##### strona wykresów ##### domyślny pierwszy samochód lub po idiku w parametrach
 async def chart_page(request: Request, pojazdID: int = None, db: Session = Depends(get_db)):
