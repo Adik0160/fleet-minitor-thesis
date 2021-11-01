@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block title %}
-Wykresy w czasie rzeczywistym
+Przegląd danych z bazy
 {% endblock %}
 
-{%block activerealtime%}active {% endblock %}
+{%block activelist%}active {% endblock %}
 
 {% block head %}
 <script src="https://d3js.org/d3-array.v2.min.js"></script>
@@ -61,40 +61,48 @@ Wykresy w czasie rzeczywistym
 {% if actualCar and actualCar.urzadzenia %}
     <h1 class="ui header">Wykres</h1>
     <div id="chart"></div>
+    <table class="ui celled table">
+        <thead>
+          <tr><th>Data</th>
+          <th>Ilość paliwa</th>
+          <th>Prędkość obrotowa</th>
+          <th>Prędkość pojazdu</th>
+          <th>Napięcie akumulatora</th>
+        </tr></thead>
+        <tbody>
+        {% for dataFromDb in dataFromDb %}
+          <tr>
+            <td data-label="date">{{dataFromDb.timestamp}}</td>
+            <td data-label="fuel">{{dataFromDb.iloscPaliwa}}</td>
+            <td data-label="rotation">{{dataFromDb.predkoscObrotowa}}</td>
+            <td data-label="speed">{{dataFromDb.predkoscPojazdu}}</td>
+            <td data-label="voltage">{{dataFromDb.napiecieAkumulatora}}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
          <script>
              const el = document.getElementById('chart');
-             const fuel = [];
-             const rotation = [];
-             const speed = [];
-             const voltage = [];
+             const fuel = [
+                {% for dataFromDb in dataFromDb %}{x: {{loop.index0}}, y: {{dataFromDb.predkoscObrotowa}}},{% endfor %}
+            ];
+             const rotation = [
+                {% for dataFromDb in dataFromDb %}{x: {{loop.index0}}, y: {{dataFromDb.iloscPaliwa}}},{% endfor %}
+             ];
+             const speed = [
+                {% for dataFromDb in dataFromDb %}{x: {{loop.index0}}, y: {{dataFromDb.predkoscPojazdu}}},{% endfor %}
+             ];
+             const voltage = [
+                {% for dataFromDb in dataFromDb %}{x: {{loop.index0}}, y: {{dataFromDb.napiecieAkumulatora}}},{% endfor %}
+             ];
              const chart = new TimeChart(el, {
                  series: [{ data: fuel, name: 'Paliwo', color: 'darkblue' },
                           { data: rotation, name: 'Prędkość obrotowa', color: 'green' },
                           { data: speed, name: 'Prędkość pojazdu', color: 'red' },
                           { data: voltage, name: 'Napięcie akumulatora', color: 'violet' }],
-                 realTime: true,
+                 realTime: false,
                  xRange: { min: 0, max: 500 }
              });
-             const ws = new WebSocket("ws://localhost:8800/ws/{{ actualCar.urzadzenia.nrUrzadzenia }}");     
-             let x = 0;
-             ws.onmessage = function(event) {
-                 const measurement = JSON.parse(event.data);
-                 console.log(measurement);
-                 x += 1
-                 var wsFuel = measurement.fuel
-                 var wsRotation = measurement.rotation
-                 var wsSpeed = measurement.speed
-                 var wsVoltagel = measurement.voltage
-                 fuel.push({x, y: wsFuel});
-                 rotation.push({x, y: wsRotation});
-                 speed.push({x, y: wsSpeed});
-                 voltage.push({x, y: wsVoltagel});
-                 chart.update();
-                 document.getElementById("fuel").innerHTML = wsFuel;
-                 document.getElementById("rotation").innerHTML = wsRotation;
-                 document.getElementById("speed").innerHTML = wsSpeed;
-                 document.getElementById("voltage").innerHTML = wsVoltagel;
-             };
          </script>
 
 {% endif %}

@@ -3,9 +3,6 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mysql import DATETIME
 from sqlalchemy.sql import func
-#from app.database import Base
-#from sqlalchemy.orm import relationship
-
 from app.database import Base
 
 
