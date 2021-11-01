@@ -1,26 +1,13 @@
 {% extends "base.html" %}
 
 {% block title %}
-Przegląd danych z bazy
+Lista pojazdów
 {% endblock %}
 
 {%block activelist%}active {% endblock %}
 
 {% block head %}
-<script src="https://d3js.org/d3-array.v2.min.js"></script>
-<script src="https://d3js.org/d3-color.v2.min.js"></script>
-<script src="https://d3js.org/d3-format.v2.min.js"></script>
-<script src="https://d3js.org/d3-interpolate.v2.min.js"></script>
-<script src="https://d3js.org/d3-time.v2.min.js"></script>
-<script src="https://d3js.org/d3-time-format.v3.min.js"></script>
-<script src="https://d3js.org/d3-scale.v3.min.js"></script>
-<script src="https://d3js.org/d3-selection.v2.min.js"></script>
-<script src="https://d3js.org/d3-axis.v2.min.js"></script>
-<script src="https://huww98.github.io/TimeChart/dist/timechart.min.js"></script>
 
- <style>
-     #chart { width: 100%; height: 300px;  }
- </style>
 {% endblock %}
 {% block content %}
 
@@ -53,58 +40,8 @@ Przegląd danych z bazy
           </div>
         </div>
     </div>
-    {% else %}
-    <h1 class="ui header">Wybierz samochód</h1>
     {% endif %}
 </div>
-{% if actualCar.urzadzenia %}
-{% if actualCar and actualCar.urzadzenia %}
-    <h1 class="ui header">Wykres</h1>
-    <div id="chart"></div>
-    <table class="ui celled table">
-        <thead>
-          <tr><th>Data</th>
-          <th>Ilość paliwa</th>
-          <th>Prędkość obrotowa</th>
-          <th>Prędkość pojazdu</th>
-          <th>Napięcie akumulatora</th>
-        </tr></thead>
-        <tbody>
-        {% for dataFromDb in dataFromDb %}
-          <tr>
-            <td data-label="date">{{dataFromDb.timestamp}}</td>
-            <td data-label="fuel">{{dataFromDb.iloscPaliwa}}</td>
-            <td data-label="rotation">{{dataFromDb.predkoscObrotowa}}</td>
-            <td data-label="speed">{{dataFromDb.predkoscPojazdu}}</td>
-            <td data-label="voltage">{{dataFromDb.napiecieAkumulatora}}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-         <script>
-             const el = document.getElementById('chart');
-             const fuel = [
-                {% for dataFromDb in dataFromDb %}{x: {{loop.index0}}, y: {{dataFromDb.predkoscObrotowa}}},{% endfor %}
-            ];
-             const rotation = [
-                {% for dataFromDb in dataFromDb %}{x: {{loop.index0}}, y: {{dataFromDb.iloscPaliwa}}},{% endfor %}
-             ];
-             const speed = [
-                {% for dataFromDb in dataFromDb %}{x: {{loop.index0}}, y: {{dataFromDb.predkoscPojazdu}}},{% endfor %}
-             ];
-             const voltage = [
-                {% for dataFromDb in dataFromDb %}{x: {{loop.index0}}, y: {{dataFromDb.napiecieAkumulatora}}},{% endfor %}
-             ];
-             const chart = new TimeChart(el, {
-                 series: [{ data: fuel, name: 'Paliwo', color: 'darkblue' },
-                          { data: rotation, name: 'Prędkość obrotowa', color: 'green' },
-                          { data: speed, name: 'Prędkość pojazdu', color: 'red' },
-                          { data: voltage, name: 'Napięcie akumulatora', color: 'violet' }],
-                 realTime: false,
-                 xRange: { min: 0, max: 500 }
-             });
-         </script>
-
 {% endif %}
 {% else %}
 <h1 class="ui header">Brak powiązanego urządzenia</h1>
