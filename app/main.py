@@ -44,10 +44,11 @@ def get_db():
 def home_page(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
 
-@app.get("/car")
+@app.get("/list-of-things")
 def readDevice(request: Request, db: Session = Depends(get_db)):
     allCars = db.query(models.Pojazdy).all()
-    return templates.TemplateResponse("listofcars.html", {"request": request, "allCars": allCars})
+    allDevices = db.query(models.Urzadzenia).all()
+    return templates.TemplateResponse("listofthings.html", {"request": request, "allCars": allCars, "allDevices": allDevices})
 
 
 @app.get("/data-viewer") ##### strona wykresów ##### domyślny pierwszy samochód lub po idiku w parametrach

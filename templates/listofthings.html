@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}
+Lista pojazdów i urządzeń
+{% endblock %}
+
+{%block activelist%}active {% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<div class="ui horizontal segments">
+    <div class="ui segment">
+        <h1 class="ui center aligned header">Pojazdy</h1>
+        <div class="ui divided items">
+            {% for car in allCars %}
+            <div class="item">
+                <div class="ui medium image">
+                    <img src="{{ car.zdjLink }}">
+                </div>
+                <div class="content">
+                        <a class="header" href="/data-viewer?pojazdID={{ car.id }}">Identyfikator pojazdu: {{car.id}}</a>
+                    <div class="meta">
+                        <span>Description</span>
+                    </div>
+                    <div class="description">
+                        <p></p>
+                    </div>
+                    <div class="extra">
+                        Additional Details
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="ui segment">
+        <h1 class="ui center aligned header">Urządzenia</h1>
+        <div class="ui divided items">
+            {% for device in allDevices %}
+            <div class="item">
+              <div class="image">
+                <img src="/images/wireframe/image.png">
+              </div>
+              <div class="content">
+                <a class="header">{{ device.id }}</a>
+                <div class="meta">
+                  <span>Description</span>
+                </div>
+                <div class="description">
+                  <p></p>
+                </div>
+                <div class="extra">
+                  Additional Details
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
