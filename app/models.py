@@ -35,7 +35,8 @@ class Urzadzenia(Base):
 
     id = Column(Integer, primary_key=True)
     nrUrzadzenia = Column(String)
-
+    zdjLink = Column(String)
+    
     pojazdy = relationship("Pojazdy", back_populates='urzadzenia')
     daneZPojazdu = relationship("DaneZPojazdu", back_populates='urzadzenia')
 

@@ -20,15 +20,27 @@ Lista pojazdów i urządzeń
                     <img src="{{ car.zdjLink }}">
                 </div>
                 <div class="content">
-                        <a class="header" href="/data-viewer?pojazdID={{ car.id }}">Identyfikator pojazdu: {{car.id}}</a>
+                        <a class="header" href="/data-viewer?pojazdID={{ car.id }}">{{ car.marki.nazwaMarki }} {{ car.nazwa }} ({{ car.rokProdukcji }})</a>
                     <div class="meta">
-                        <span>Description</span>
+                        <span>{{ car.numerRejestracyjny }}</span><br>
+                        <span>Nr. urządzenia {{ car.urzadzenia.nrUrzadzenia }}</span><br>
+                        <span>ID pojazdu {{ car.id }}</span>
                     </div>
                     <div class="description">
-                        <p></p>
-                    </div>
-                    <div class="extra">
-                        Additional Details
+                        <!-- <p><strong>Ostatnie dane:</strong></p>
+                        <p>Godzina zgłoszenia: <strong id="date"></strong></p>
+                        <p>Ilość paliwa: <strong id="fuel"></strong> %</p>
+                        <p>Prędkość obrotowa: <strong id="speed"></strong> obr/min</p>
+                        <p>Prędkość pojazdu: <strong id="rotation"></strong> km/h</p>                   
+                        <p>Napiecie akumulatora: <strong id="voltage"></strong> V</p>                         -->
+
+                        <p><strong>Statystyki:</strong></p>
+                        <p>Średnia ilość paliwa: <strong id="fuel"></strong> %</p>
+                        <p>Maksymalna ilość paliwa: <strong id="fuel"></strong> %</p>
+                        <p>Średnia prędkość obrotowa: <strong id="rotation"></strong> obr/min</p>
+                        <p>Maksymalna prędkość obrotowa: <strong id="rotation"></strong> obr/min</p>
+                        <p>Średnia prędkość pojazdu: <strong id="speed"></strong> km/h</p>
+                        <p>Maksymalna prędkość pojazdu: <strong id="speed"></strong> km/h</p>               
                     </div>
                 </div>
             </div>
@@ -40,21 +52,18 @@ Lista pojazdów i urządzeń
         <div class="ui divided items">
             {% for device in allDevices %}
             <div class="item">
-              <div class="image">
-                <img src="/images/wireframe/image.png">
-              </div>
-              <div class="content">
-                <a class="header">{{ device.id }}</a>
-                <div class="meta">
-                  <span>Description</span>
+                <div class="ui small image">
+                    <img src="{{ device.zdjLink }}">
                 </div>
-                <div class="description">
-                  <p></p>
+                <div class="content">
+                        <a class="header" href="/data-viewer?pojazdID={{ device.id }}">ID urządzenia: {{ device.id }}</a>
+                    <div class="meta">
+                        <span>Nr. urządzenia {{ device.nrUrzadzenia }}</span><br>
+                    </div>
+                    <div class="description">
+                                     
+                    </div>
                 </div>
-                <div class="extra">
-                  Additional Details
-                </div>
-              </div>
             </div>
             {% endfor %}
         </div>
