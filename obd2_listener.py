@@ -1,6 +1,8 @@
 import asyncio
 import can
 import RPi.GPIO as GP
+import paho.mqtt.client as mqtt
+import json
 
 #obłusgiwane pidsy Hyundai i30
 #[0, 1, 4, 5, 12, 13, 15, 16, 17, 19, 28, 31, 32, 33, 35, 36, 44, 45, 48, 49, 51, 62, 64, 65, 66, 69, 73, 74, 76, 79]
@@ -14,6 +16,9 @@ mqttDataToSend ={}
 vinNumber = 'Numer VIN pojazdu: '
 deviceNr = 1234
 
+mqtt_host="broker.emqx.io"
+mqtt_port=1883
+
 
 PID01_20 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 PID21_40 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -23,6 +28,7 @@ PID81_A0 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 PIDA1_C0 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 PID01_20_S09 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
+client= mqtt.Client()
 
 def print_message(msg):
     global fueltank
@@ -93,7 +99,9 @@ def print_message(msg):
             formula = (256*A + B)/1000
             batteryvoltage.append(formula)
             mqttDataToSend['voltage'] = formula
-            print(mqttDataToSend)
+            print(json.dumps(mqttDataToSend))
+            client.publish("data", json.dumps(mqttDataToSend))
+
     elif service == 0x49:
         if PID == 0x00:
             formula = 16777216*A + 65536*B + 256*C + D
@@ -183,7 +191,7 @@ async def sendRequest(bus, pid, serwis, sleep):
             GP.output(6, GP.HIGH)
             bus.send(msg)
             print('-> pid: ' + str(hex(i)))
-            await asyncio.sleep(0.2)
+            await asyncio.sleep(0.01)
             GP.output(6, GP.LOW)
 
 async def main():
@@ -196,6 +204,8 @@ async def main():
     GP.setwarnings(False)
     GP.setup([5, 6, 13], GP.OUT)
     GP.output([5, 6, 13], [GP.LOW,GP.LOW,GP.LOW])
+    client.connect(mqtt_host, mqtt_port)
+    client.loop_start()
     can0 = can.Bus('vcan0', bustype='socketcan', bitrate=500000)
     filter = [{"can_id": 0x7e8, "can_mask": 0xff, "extended": False}]
     can0.set_filters(filter)
@@ -211,7 +221,7 @@ async def main():
     print("zapytanie o numer vin")
     await vinRequest(bus=can0)
     print("cykliczne pytanie o aktualne dane")
-    await sendRequest(bus=can0, pid=[0x05, 0x2f, 0x0c, 0x0d, 0x42], serwis=0x01, sleep=1) #0x0d, 0x0c, 0x05, 0x42, 0x2f
+    await sendRequest(bus=can0, pid=[0x05, 0x2f, 0x0c, 0x0d, 0x42], serwis=0x01, sleep=0.96) #0x0d, 0x0c, 0x05, 0x42, 0x2f
 
     GP.cleanup()
     notifier.stop()
